@@ -1,0 +1,13 @@
+# Analysis outputs
+Outputs/
+
+# IAEA phase space files
+*.IAEAphsp
+*.IAEAheader
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

@@ -1,0 +1,61 @@
+# Figure
+figure.facecolor: white
+figure.edgecolor: white
+figure.figsize: 6.0, 4.5
+
+# Axes
+axes.facecolor: white
+axes.edgecolor: black
+axes.linewidth: 1.5
+axes.labelcolor: black
+axes.labelsize: 14
+axes.labelweight: bold
+axes.titlesize: 16
+axes.titleweight: bold
+
+# Spines
+axes.spines.top: False
+axes.spines.right: False
+axes.spines.left: True
+axes.spines.bottom: True
+
+# Ticks
+xtick.color: black
+ytick.color: black
+xtick.labelcolor: black
+ytick.labelcolor: black
+xtick.labelsize: 13
+ytick.labelsize: 13
+xtick.major.size: 4
+ytick.major.size: 4
+xtick.major.width: 0.8
+ytick.major.width: 0.8
+xtick.direction: out
+ytick.direction: out
+
+# Minor ticks
+xtick.minor.visible: True
+ytick.minor.visible: True
+
+# Grid
+axes.grid: True
+grid.color: 0.85
+grid.linewidth: 0.5
+
+# Lines
+lines.linewidth: 2.5
+lines.markersize: 6
+lines.markeredgewidth: 0.8
+
+# Font
+font.family: sans-serif
+font.sans-serif: Arial, Helvetica, DejaVu Sans
+font.size: 14
+
+# Legend
+legend.frameon: False
+legend.fontsize: 12
+legend.borderaxespad: 0.5
+
+# Saving
+savefig.bbox: tight
