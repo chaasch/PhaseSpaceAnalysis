@@ -18,7 +18,7 @@ from ParticleAnalyzer import ParticleAnalyzer
 
 #Binning and source energy settings for histograms
 SPECTRUM_BIN_WIDTH = 0.125      #keV
-SPATIAL_BIN_WIDTH = 0.01        #cm
+SPATIAL_BIN_WIDTH = 0.1        #cm
 SOURCE_ENERGY = 120 #keV
 
 #tube settings for the SpekPy comparison
@@ -26,7 +26,7 @@ VOLTAGE = 120                   #kV
 ANODE_ANGLE = 20                #degrees
 FILTRATION = [('Be', 3.0)]      #(material, thickness in mm)
 SPEKPY_BIN_WIDTH = 0.125          #keV
-HVL_MATERIAL = 'Al'
+HVL_MATERIALS = ['Al', 'Cu']
 
 #phase space to analyze: PHASE_SPACE_DIRECTORY/PHASE_SPACE_NAME.IAEAheader and .IAEAphsp
 PHASE_SPACE_NAME = 'EGSNRC-120kV'
@@ -52,7 +52,7 @@ def main():
     efficiency = analyzer.analyze_efficiency(source_energy=SOURCE_ENERGY, output_csv=OUTPUT_CSV)
 
     # --------------------------SpekPy comparison-----------------------------------------------------------
-    comparison = analyzer.compare_spekpy(VOLTAGE, ANODE_ANGLE, FILTRATION, SPEKPY_BIN_WIDTH, HVL_MATERIAL,
+    comparison = analyzer.compare_spekpy(VOLTAGE, ANODE_ANGLE, FILTRATION, SPEKPY_BIN_WIDTH, HVL_MATERIALS,
                                          output_graph=OUTPUT_GRAPH, output_csv=OUTPUT_CSV)
 
 if __name__ == '__main__':

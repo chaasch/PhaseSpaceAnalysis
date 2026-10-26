@@ -59,8 +59,8 @@ class ParticleAnalyzer():
        Fluence (or energy fluence) map in the scoring plane for each particle type.
      - analyze_efficiency(source_energy: float, output_csv: bool):
        Particles and energy per original history and particle weight statistics for each particle type.
-     - compare_spekpy(voltage: float, anode_angle: float, filtration: list, bin_width: float, hvl_material: str, output_graph: bool, output_csv: bool):
-       Compares the photon spectrum, mean energy and first HVL against SpekPy.
+     - compare_spekpy(voltage: float, anode_angle: float, filtration: list, bin_width: float, hvl_materials: list, output_graph: bool, output_csv: bool):
+       Compares the photon spectrum, mean energy and first HVL in each material against SpekPy.
     """
 
     def __init__(self, output_directory:str = None, phase_space_name:str = None, particle_list:list[Particle] = None,orig_histories:int = None):
@@ -184,9 +184,10 @@ class ParticleAnalyzer():
 
     """Compare the photon spectrum against SpekPy for a tungsten tube at voltage (kV) and anode_angle (degrees) with
        filtration given as [(material, thickness in mm)]. Both spectra are normalized to unit area on bin_width (keV) bins
-       and graphed with their ratio. Mean energy and first HVL of both are calculated with SpekPy so they are comparable"""
+       and graphed with their ratio. Mean energy and first HVL in each of hvl_materials are calculated
+       with SpekPy for both so they are comparable"""
     def compare_spekpy(self, voltage:float, anode_angle:float, filtration:list[tuple[str, float]], bin_width:float = 0.5,
-                       hvl_material:str = 'Al', output_graph:bool = True, output_csv:bool = True):
+                       hvl_materials:list[str] = ('Al', 'Cu'), output_graph:bool = True, output_csv:bool = True):
         #spekpy is only needed for this comparison, so it is imported here rather than for the whole module
         import spekpy
 
@@ -209,10 +210,12 @@ class ParticleAnalyzer():
             phase_space_spek = spekpy.Spek.load_from_file(file.name, ',')
             os.remove(file.name)
 
-            comparison = {
-                'phase_space': {'mean_energy': phase_space_spek.get_emean(), 'hvl1': phase_space_spek.get_hvl1(matl=hvl_material)},
-                'spekpy': {'mean_energy': spek.get_emean(), 'hvl1': spek.get_hvl1(matl=hvl_material)},
-            }
+            #mean energy in keV and first HVL in mm of each material
+            comparison = {}
+            for source, source_spek in [('phase_space', phase_space_spek), ('spekpy', spek)]:
+                comparison[source] = {'mean_energy_keV': source_spek.get_emean()}
+                for material in hvl_materials:
+                    comparison[source][f'hvl1_{material}_mm'] = source_spek.get_hvl1(matl=material)
 
         if output_graph:
             filter_description = ', '.join(f'{thickness} mm {material}' for material, thickness in filtration) or 'no filtration'
@@ -237,5 +240,12 @@ class ParticleAnalyzer():
             np.savetxt(os.path.join(self.output_directory, f'{self.phase_space_name}_spekpy_comparison.csv'),
                        np.column_stack([energy, phase_space_spectrum, spek_spectrum]), fmt='%.10g', delimiter=',',
                        header='energy_keV,phase_space,spekpy', comments='')
+            #one row per quantity: phase space value, SpekPy value and the percent difference of SpekPy from the phase space
+            with open(os.path.join(self.output_directory, f'{self.phase_space_name}_spekpy_hvl_comparison.csv'), 'w') as file:
+                file.write('quantity,phase_space,spekpy,percent_difference\n')
+                for quantity, phase_space_value in comparison['phase_space'].items():
+                    spekpy_value = comparison['spekpy'][quantity]
+                    percent_difference = 100 * (spekpy_value - phase_space_value) / phase_space_value
+                    file.write(f'{quantity},{phase_space_value:.10g},{spekpy_value:.10g},{percent_difference:.10g}\n')
         return comparison
 
