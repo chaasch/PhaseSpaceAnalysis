@@ -36,7 +36,7 @@ Results are written to `Outputs/<PHASE_SPACE_NAME>_Output/`.
 | `analyze_spectra` | Weighted energy spectrum (keV) per particle type |
 | `analyze_fluence` | Fluence or energy fluence map in the scoring plane per particle type |
 | `analyze_efficiency` | Particles and energy per original history, weight statistics |
-| `compare_spekpy` | Photon spectrum, mean energy and first HVL (Al and Cu) compared against SpekPy |
+| `compare_spekpy` | Photon spectrum, mean energy, and HVL1, HVL2, homogeneity coefficient and effective energy (Al and Cu) compared against SpekPy |
 
 ## Author
 

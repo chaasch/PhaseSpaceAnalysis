@@ -60,7 +60,7 @@ class ParticleAnalyzer():
      - analyze_efficiency(source_energy: float, output_csv: bool):
        Particles and energy per original history and particle weight statistics for each particle type.
      - compare_spekpy(voltage: float, anode_angle: float, filtration: list, bin_width: float, hvl_materials: list, output_graph: bool, output_csv: bool):
-       Compares the photon spectrum, mean energy and first HVL in each material against SpekPy.
+       Compares the photon spectrum, mean energy and HVL1, HVL2, homogeneity coefficient and effective energy in each material against SpekPy.
     """
 
     def __init__(self, output_directory:str = None, phase_space_name:str = None, particle_list:list[Particle] = None,orig_histories:int = None):
@@ -184,8 +184,8 @@ class ParticleAnalyzer():
 
     """Compare the photon spectrum against SpekPy for a tungsten tube at voltage (kV) and anode_angle (degrees) with
        filtration given as [(material, thickness in mm)]. Both spectra are normalized to unit area on bin_width (keV) bins
-       and graphed with their ratio. Mean energy and first HVL in each of hvl_materials are calculated
-       with SpekPy for both so they are comparable"""
+       and graphed with their ratio. Mean energy and, in each of hvl_materials, the first and second HVL,
+       homogeneity coefficient and effective energy are calculated with SpekPy for both so they are comparable"""
     def compare_spekpy(self, voltage:float, anode_angle:float, filtration:list[tuple[str, float]], bin_width:float = 0.5,
                        hvl_materials:list[str] = ('Al', 'Cu'), output_graph:bool = True, output_csv:bool = True):
         #spekpy is only needed for this comparison, so it is imported here rather than for the whole module
@@ -210,12 +210,16 @@ class ParticleAnalyzer():
             phase_space_spek = spekpy.Spek.load_from_file(file.name, ',')
             os.remove(file.name)
 
-            #mean energy in keV and first HVL in mm of each material
+            #mean energy in keV, then for each material the first and second HVL in mm, the homogeneity
+            #coefficient (HVL1 / HVL2) and the effective energy in keV (monoenergetic energy with the same HVL1)
             comparison = {}
             for source, source_spek in [('phase_space', phase_space_spek), ('spekpy', spek)]:
                 comparison[source] = {'mean_energy_keV': source_spek.get_emean()}
                 for material in hvl_materials:
                     comparison[source][f'hvl1_{material}_mm'] = source_spek.get_hvl1(matl=material)
+                    comparison[source][f'hvl2_{material}_mm'] = source_spek.get_hvl2(matl=material)
+                    comparison[source][f'hc_{material}'] = source_spek.get_hc(matl=material)
+                    comparison[source][f'eeff_{material}_keV'] = source_spek.get_eeff(matl=material)
 
         if output_graph:
             filter_description = ', '.join(f'{thickness} mm {material}' for material, thickness in filtration) or 'no filtration'
